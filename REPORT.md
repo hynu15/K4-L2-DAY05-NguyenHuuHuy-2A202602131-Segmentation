@@ -1,10 +1,9 @@
 # Báo cáo Day 5 — điền trực tiếp trong fork của bạn
 
-**Cách dùng:** Thay mọi dấu `…` bằng bài làm thật của bạn trước khi nộp link fork trên VLearn. Giữ nguyên bốn mục và bảng để coach đọc nhanh. Viết ngắn, cụ thể theo ảnh/vùng; không cần thuật ngữ chuyên sâu. Ví dụ trong [hướng dẫn mẫu](reports/REPORT_TEMPLATE.md) chỉ giúp hiểu cách điền, không phải câu trả lời để chép lại.
 
 - Mã học viên theo lớp: 2A202602131
 - Ngày / CVAT local: 2026-09-17 / CVAT local http://localhost:8080 (v2.74.1)
-- Công cụ đã dùng: CVAT REST API do AI agent điều khiển; gợi ý tự động YOLO11-seg + SegFormer-B5 Cityscapes (nuclio); hậu xử lý bằng script (map class, lấp lỗ, trừ things khỏi stuff, polygon sửa theo tọa độ quan sát trên overlay); QC bằng overlay + `scripts/inspect_submissions.py`. Không vẽ tay Brush/Polygon, không dùng SAM.
+- Công cụ đã dùng: CVAT REST API do AI agent điều khiển; gợi ý tự động YOLO11-seg + SegFormer-B5 Cityscapes (nuclio); hậu xử lý bằng script (map class, lấp lỗ, trừ things khỏi stuff, polygon sửa theo tọa độ quan sát trên overlay); QC bằng overlay + `scripts/inspect_submissions.py`. Người học tự sửa `medium_instance` và `hard_panoptic` trên CVAT sau khi tự chấm. Không dùng SAM.
 
 Mã học viên là mã lớp cấp; không cần ghi họ tên trong report nếu kênh VLearn đã nhận diện bạn. Chỉ ghi công cụ thật sự đã dùng; không có SAM vẫn làm bài bình thường.
 
@@ -40,13 +39,12 @@ Chọn object đầu tiên bạn tự vẽ ở `medium_instance`, trước khi x
 
 Chọn một lỗi **có thật** trong bài. Nếu công cụ lỗi khiến bạn chưa sửa được, ghi rõ đã thử gì và cần coach hỗ trợ gì; không ghi “đã sửa” khi chưa sửa.
 
-- Task/ảnh/vùng: `cp6_coverage` / `7daa6479-67988f3f.jpg` / xe buýt trắng giữa ảnh (x≈255–635, y≈85–525).
-- Lỗi thuộc loại: sai lớp / thiếu-thừa vật / gộp-tách / biên / phủ vùng / khác: sai lớp.
-- Bằng chứng tôi nhìn thấy: overlay SegFormer tô cả thân xe buýt (chữ "New York City Bus 2555") bằng màu `car`; task không có class `bus`; YOLO11-seg nhận đúng vật này là `bus` 0.65.
-- Quy tắc và hành động sửa: không bịa class — bus không thuộc 7 class của task nên để trống; gỡ 149 375 px `car` nằm trong mask bus. Cùng ảnh: đổi mảng tối trên vỉa hè bên phải bó vỉa từ `road` sang `sidewalk` (34 745 px) và bỏ nhãn táp-lô xe ở đáy ảnh.
-- Sau sửa đã Save và export lại chưa? Sửa trên bitmap trước khi import; đã import vào job CVAT (đọc lại đủ 7 shape) và export `Segmentation mask 1.1`; mask trong ZIP khớp 100% bản đã sửa. Bản export trước khi xem đáp án: commit `fc285c7`.
+- Task/ảnh/vùng: `hard_panoptic` / `000000460147.jpg` / xe van tối màu sát mép trái (x≈0–91, y≈235–290) và xe van đen trên tầng xe chở ô tô (x≈344–417, y≈216–290).
+- Lỗi thuộc loại: sai lớp / thiếu-thừa vật / gộp-tách / biên / phủ vùng / khác: sai lớp, kèm thiếu vật nhỏ.
+- Bằng chứng tôi nhìn thấy: hai xe van thân hộp bị gán `car`; cuối đường (x≈350–420, y≈125–175) sót 2 xe buýt, 3 xe máy, 3 người nhỏ. Ở `000000350023.jpg` có mảng `sidewalk` rải rác không phải vỉa hè.
+- Quy tắc và hành động sửa: van chở hàng thân hộp → `truck`, mỗi xe một mask; thêm vật nhỏ nhìn thấy rõ; bỏ mảng `sidewalk` sai. Ở `medium_instance`, thêm người/xe bị sót ở `000000373353.jpg` và `000000458325.jpg`, bỏ mask trùng.
+- Sau sửa đã Save và export lại chưa? Đã sửa trên CVAT, Save và export lại `COCO 1.0` cho `hard_panoptic` và `medium_instance`.
 
-Nếu bạn **đã xem Summary tự đánh giá trên GitHub Actions hoặc tự chạy script**, ghi ngắn một kết quả liên quan lỗi vừa sửa (ví dụ task, metric trước/sau nếu có): chưa có điểm (release `day5-reference-v1` chưa có `day5-groundtruth.zip`). Scorecard ba tier tối đa **82**, không phải điểm cuối trên 100. Không tự ghi PASS/top 3/bonus; người phụ trách xác nhận theo tiêu chí lớp. Không đưa file ground truth vào fork.
 
 ## 4. Ba ca chưa chắc hoặc đã cân nhắc
 
@@ -56,4 +54,4 @@ Mỗi ca là một **vùng cụ thể** khiến bạn phải cân nhắc hai cá
 | --- | --- | --- | --- |
 | 1. `easy_semantic/7ee6d192-89e2408b.jpg` — sườn đồi cỏ khô hai bên cao tốc (y≈300–510) | (a) `vegetation`; (b) không thuộc 5 class (terrain) | SegFormer ra `terrain`; classes.json dùng trainId Cityscapes, nơi terrain tách khỏi vegetation | Để trống. Hỏi coach: cỏ khô/đất trống có tính vào `vegetation` không? |
 | 2. `cp5_occlusion/000000336232.jpg` — sedan xám-xanh sau đầu người lái xe máy (x≈90–198, y≈123–181) | (a) hai mảng rời là 2 xe; (b) 1 xe bị che | Cùng màu, thẳng hàng, đèn pha ở mảng phải, đuôi ở mảng trái; model có #17 phủ cả 2 mảng và #15 chỉ mảng phải | Một instance: giữ #17, bỏ #15; không vẽ xuyên phần bị che |
-| 3. `cp4_curb/7d83710e-4697c3b2.jpg` — bồn đất trồng cây giữa bó vỉa và vỉa hè (x≈512–872, y≈336–534) | (a) `sidewalk` vì nằm trên lề; (b) không phải road/sidewalk | Là đất trồng cây, không phải bề mặt đi bộ; model gán một phần là road | Để trống bồn đất; bó vỉa và vỉa hè bê tông bên phải gán `sidewalk` |
+| 3. `hard_panoptic/000000460147.jpg` — xe van tối màu sát mép trái (x≈0–91, y≈235–290) | (a) `car` vì cỡ xe con chở khách; (b) `truck` vì thân hộp chở hàng | YOLO lưỡng lự truck 0.45 / car 0.40; xe có thân hộp chở hàng | Đổi sang `truck`. Hỏi coach: van chở hàng cỡ nhỏ tính `truck` hay `car`? |
