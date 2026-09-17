@@ -2,9 +2,9 @@
 
 **Cách dùng:** Thay mọi dấu `…` bằng bài làm thật của bạn trước khi nộp link fork trên VLearn. Giữ nguyên bốn mục và bảng để coach đọc nhanh. Viết ngắn, cụ thể theo ảnh/vùng; không cần thuật ngữ chuyên sâu. Ví dụ trong [hướng dẫn mẫu](reports/REPORT_TEMPLATE.md) chỉ giúp hiểu cách điền, không phải câu trả lời để chép lại.
 
-- Mã học viên theo lớp: …
-- Ngày / CVAT local: …
-- Công cụ đã dùng: …
+- Mã học viên theo lớp: 2A202602131
+- Ngày / CVAT local: 2026-09-17 / CVAT local http://localhost:8080 (v2.74.1)
+- Công cụ đã dùng: CVAT REST API do AI agent điều khiển; gợi ý tự động YOLO11-seg + SegFormer-B5 Cityscapes (nuclio); hậu xử lý bằng script (map class, lấp lỗ, trừ things khỏi stuff, polygon sửa theo tọa độ quan sát trên overlay); QC bằng overlay + `scripts/inspect_submissions.py`. Không vẽ tay Brush/Polygon, không dùng SAM.
 
 Mã học viên là mã lớp cấp; không cần ghi họ tên trong report nếu kênh VLearn đã nhận diện bạn. Chỉ ghi công cụ thật sự đã dùng; không có SAM vẫn làm bài bình thường.
 
@@ -14,15 +14,15 @@ Ghi tên ZIP đúng như file trong `submissions/` và số ảnh đã vẽ, Sav
 
 | Task | File ZIP đúng tên | Hoàn thành mấy ảnh | Điểm tối đa (coach chấm sau) |
 | --- | --- | ---: | ---: |
-| easy_semantic | … | … / 3 | 20 |
-| medium_instance | … | … / 3 | 32 |
-| hard_panoptic | … | … / 2 | 30 |
-| cp1_holes | … | … / 1 | 3 |
-| cp2_slice | … | … / 1 | 3 |
-| cp5_occlusion | … | … / 1 | 3 |
-| cp3_thin | … | … / 1 | 3 |
-| cp4_curb | … | … / 1 | 3 |
-| cp6_coverage | … | … / 1 | 3 |
+| easy_semantic | `submissions/easy_semantic.zip` | 3 / 3 | 20 |
+| medium_instance | `submissions/medium_instance.zip` | 3 / 3 | 32 |
+| hard_panoptic | `submissions/hard_panoptic.zip` | 2 / 2 | 30 |
+| cp1_holes | `submissions/cp1_holes.zip` | 1 / 1 | 3 |
+| cp2_slice | `submissions/cp2_slice.zip` | 1 / 1 | 3 |
+| cp5_occlusion | `submissions/cp5_occlusion.zip` | 1 / 1 | 3 |
+| cp3_thin | `submissions/cp3_thin.zip` | 1 / 1 | 3 |
+| cp4_curb | `submissions/cp4_curb.zip` | 1 / 1 | 3 |
+| cp6_coverage | `submissions/cp6_coverage.zip` | 1 / 1 | 3 |
 | **Tổng tối đa** | | | **100** |
 
 Nếu export lỗi, ghi task, dữ liệu đã Save đến đâu và lỗi đã báo coach.
@@ -31,22 +31,22 @@ Nếu export lỗi, ghi task, dữ liệu đã Save đến đâu và lỗi đã 
 
 Chọn object đầu tiên bạn tự vẽ ở `medium_instance`, trước khi xem bất kỳ đề xuất tự động nào cho object đó. Ghi ảnh/vị trí đủ để tìm lại; “quy tắc biên” là lý do bạn chọn hoặc dừng mask ở ranh đó.
 
-- Ảnh, vị trí và object Medium đầu tiên tự vẽ: …
-- Class và quy tắc tôi dùng để chọn biên: …
-- Nếu dùng gợi ý sau đó: vùng gợi ý sai/đúng, hành động sửa/giữ và lý do: …
-- Nếu không dùng gợi ý: ghi “không dùng”; vẫn giải thích một quyết định gán nhãn của mình.
+- Ảnh, vị trí và object Medium đầu tiên tự vẽ: không có object tự vẽ; toàn bộ mask Medium do model YOLO11-seg tạo và agent hậu xử lý (người học chọn không vẽ tay).
+- Class và quy tắc tôi dùng để chọn biên: biên theo phần nhìn thấy của mask model; lỗ kín bên trong mỗi instance được lấp (kính/khe nằm trong mask); hai mask cùng class IoU > 0.7 coi là trùng, giữ confidence cao hơn; ngưỡng confidence 0.3.
+- Nếu dùng gợi ý sau đó: `000000181542.jpg` — người lái xe máy phía trước bên trái (x≈109–212, y≈111–385) có 2 mask person (#10 0.70 và #12 0.59) trùng nhau → giữ #10, bỏ #12 để một người chỉ có một mask; các xe máy/người khác giữ đề xuất vì biên khớp phần nhìn thấy trên overlay.
+- Nếu không dùng gợi ý: có dùng gợi ý. Quyết định gán nhãn khác: ở Hard, pixel của things được trừ khỏi stuff để panoptic không chồng lấn.
 
 ## 3. Một lỗi tôi tìm thấy và sửa
 
 Chọn một lỗi **có thật** trong bài. Nếu công cụ lỗi khiến bạn chưa sửa được, ghi rõ đã thử gì và cần coach hỗ trợ gì; không ghi “đã sửa” khi chưa sửa.
 
-- Task/ảnh/vùng: …
-- Lỗi thuộc loại: sai lớp / thiếu-thừa vật / gộp-tách / biên / phủ vùng / khác: …
-- Bằng chứng tôi nhìn thấy: …
-- Quy tắc và hành động sửa: …
-- Sau sửa đã Save và export lại chưa? …
+- Task/ảnh/vùng: `cp6_coverage` / `7daa6479-67988f3f.jpg` / xe buýt trắng giữa ảnh (x≈255–635, y≈85–525).
+- Lỗi thuộc loại: sai lớp / thiếu-thừa vật / gộp-tách / biên / phủ vùng / khác: sai lớp.
+- Bằng chứng tôi nhìn thấy: overlay SegFormer tô cả thân xe buýt (chữ "New York City Bus 2555") bằng màu `car`; task không có class `bus`; YOLO11-seg nhận đúng vật này là `bus` 0.65.
+- Quy tắc và hành động sửa: không bịa class — bus không thuộc 7 class của task nên để trống; gỡ 149 375 px `car` nằm trong mask bus. Cùng ảnh: đổi mảng tối trên vỉa hè bên phải bó vỉa từ `road` sang `sidewalk` (34 745 px) và bỏ nhãn táp-lô xe ở đáy ảnh.
+- Sau sửa đã Save và export lại chưa? Sửa trên bitmap trước khi import; đã import vào job CVAT (đọc lại đủ 7 shape) và export `Segmentation mask 1.1`; mask trong ZIP khớp 100% bản đã sửa. Bản export trước khi xem đáp án: commit `fc285c7`.
 
-Nếu bạn **đã xem Summary tự đánh giá trên GitHub Actions hoặc tự chạy script**, ghi ngắn một kết quả liên quan lỗi vừa sửa (ví dụ task, metric trước/sau nếu có): … / chưa có điểm. Scorecard ba tier tối đa **82**, không phải điểm cuối trên 100. Không tự ghi PASS/top 3/bonus; người phụ trách xác nhận theo tiêu chí lớp. Không đưa file ground truth vào fork.
+Nếu bạn **đã xem Summary tự đánh giá trên GitHub Actions hoặc tự chạy script**, ghi ngắn một kết quả liên quan lỗi vừa sửa (ví dụ task, metric trước/sau nếu có): chưa có điểm (release `day5-reference-v1` chưa có `day5-groundtruth.zip`). Scorecard ba tier tối đa **82**, không phải điểm cuối trên 100. Không tự ghi PASS/top 3/bonus; người phụ trách xác nhận theo tiêu chí lớp. Không đưa file ground truth vào fork.
 
 ## 4. Ba ca chưa chắc hoặc đã cân nhắc
 
@@ -54,6 +54,6 @@ Mỗi ca là một **vùng cụ thể** khiến bạn phải cân nhắc hai cá
 
 | Ảnh/vị trí | Hai cách hiểu có thể | Quy tắc/chứng cứ | Quyết định hoặc câu hỏi cho coach |
 | --- | --- | --- | --- |
-| 1 | … | … | … |
-| 2 | … | … | … |
-| 3 | … | … | … |
+| 1. `easy_semantic/7ee6d192-89e2408b.jpg` — sườn đồi cỏ khô hai bên cao tốc (y≈300–510) | (a) `vegetation`; (b) không thuộc 5 class (terrain) | SegFormer ra `terrain`; classes.json dùng trainId Cityscapes, nơi terrain tách khỏi vegetation | Để trống. Hỏi coach: cỏ khô/đất trống có tính vào `vegetation` không? |
+| 2. `cp5_occlusion/000000336232.jpg` — sedan xám-xanh sau đầu người lái xe máy (x≈90–198, y≈123–181) | (a) hai mảng rời là 2 xe; (b) 1 xe bị che | Cùng màu, thẳng hàng, đèn pha ở mảng phải, đuôi ở mảng trái; model có #17 phủ cả 2 mảng và #15 chỉ mảng phải | Một instance: giữ #17, bỏ #15; không vẽ xuyên phần bị che |
+| 3. `cp4_curb/7d83710e-4697c3b2.jpg` — bồn đất trồng cây giữa bó vỉa và vỉa hè (x≈512–872, y≈336–534) | (a) `sidewalk` vì nằm trên lề; (b) không phải road/sidewalk | Là đất trồng cây, không phải bề mặt đi bộ; model gán một phần là road | Để trống bồn đất; bó vỉa và vỉa hè bê tông bên phải gán `sidewalk` |
